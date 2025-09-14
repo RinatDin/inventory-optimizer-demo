@@ -22,12 +22,85 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for professional styling
+
+"""
+AI-Powered Inventory Optimization System
+Full Working Prototype with Russian/English Support
+Based on SCManagement1.0Alpha.xlsx
+"""
+
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime, timedelta
+import time
+from openai import OpenAI
+import json
+
+# Page configuration
+st.set_page_config(
+    page_title="AI Inventory Optimizer | Оптимизатор Запасов",
+    page_icon="📦",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for professional styling and force light mode
 st.markdown("""
     <style>
+    /* Force light mode on all devices */
+    :root {
+        color-scheme: light !important;
+    }
+    
+    [data-testid="stAppViewContainer"] {
+        background-color: #ffffff !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background-color: #ffffff !important;
+    }
+    
+    [data-testid="stSidebar"] {
+        background-color: #f0f2f6 !important;
+    }
+    
+    /* Force light theme colors */
+    .stApp {
+        background-color: #ffffff !important;
+        color: #262730 !important;
+    }
+    
+    /* Override dark mode text colors */
+    .stMarkdown, .stText, p, span, div {
+        color: #262730 !important;
+    }
+    
+    /* Fix metric text colors */
+    [data-testid="metric-container"] {
+        background-color: #f0f2f6 !important;
+        border: 2px solid #cbd5e0 !important;
+        padding: 10px 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    [data-testid="metric-container"] label {
+        color: #262730 !important;
+    }
+    
+    [data-testid="metric-container"] [data-testid="stMetricValue"] {
+        color: #262730 !important;
+    }
+    
+    /* Custom styling */
     .main {
         padding: 0rem 1rem;
+        background-color: #ffffff !important;
     }
+    
     .metric-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 20px;
@@ -35,6 +108,7 @@ st.markdown("""
         color: white;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+    
     .urgent-alert {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         padding: 15px;
@@ -42,26 +116,43 @@ st.markdown("""
         color: white;
         font-weight: bold;
     }
+    
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
+        background-color: transparent !important;
     }
+    
     .stTabs [data-baseweb="tab"] {
         height: 50px;
         padding-left: 20px;
         padding-right: 20px;
-        background-color: #f0f2f6;
+        background-color: #f0f2f6 !important;
         border-radius: 8px;
+        color: #262730 !important;
     }
+    
     .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        color: white !important;
     }
-    div[data-testid="metric-container"] {
-        background-color: #f0f2f6;
-        border: 2px solid #cbd5e0;
-        padding: 10px 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    
+    /* Fix dataframe colors */
+    [data-testid="stDataFrame"] {
+        background-color: #ffffff !important;
+    }
+    
+    [data-testid="stTable"] {
+        background-color: #ffffff !important;
+    }
+    
+    /* Fix select box and inputs */
+    .stSelectbox label, .stTextInput label {
+        color: #262730 !important;
+    }
+    
+    /* Override Plotly dark theme */
+    .js-plotly-plot .plotly {
+        background-color: #ffffff !important;
     }
     </style>
 """, unsafe_allow_html=True)
